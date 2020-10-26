@@ -3,23 +3,33 @@ const keys = require('./keys');
 const express = require('express');
 const cors = require('cors');
 
-const app = epxress();
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-const { Pool } = require('pg');
-const pgClient = new Pool({
+const { Client } = require('pg');
+const pgClient = new Client({
   host: keys.pgHost,
   port: keys.pgPort,
   user: keys.pgUser,
   password: keys.pgPassword,
   database: keys.pgDatabase,
 });
-pgClient.on('connect', () => {
-  pgClient
-    .query('CREATE TABLE IF NOT EXISTS values (number INT)')
-    .catch((err) => console.log(err));
-});
+
+pgClient
+  .connect()
+  .then(() => {
+    pgClient
+      .query('CREATE TABLE IF NOT EXISTS values (number INT)')
+      .catch((err) => console.log(err));
+  })
+  .catch((err) => console.log(err));
+
+// pgClient.on('connect', () => {
+//   pgClient
+//     .query('CREATE TABLE IF NOT EXISTS values (number INT)')
+//     .catch((err) => console.log(err));
+// });
 
 const redis = require('redis');
 const redisClient = redis.createClient({
